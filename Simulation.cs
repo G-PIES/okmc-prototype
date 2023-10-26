@@ -68,12 +68,12 @@ public class Simulation
 
     private int CalculateNumberOfTimes(ImmutableArray<double> probabilities, double randomDouble)
     {
-        var index = 1;
+        var index = 0;
         for (; index < probabilities.Length; index++)
         {
             if (probabilities[index] > randomDouble)
             {
-                return index - 1;
+                return index;
             }
         }
 
