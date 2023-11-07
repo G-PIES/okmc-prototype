@@ -17,6 +17,8 @@ public class ModelParameters
     /// </summary>
     public required double Temperature { get; init; }
 
+    public required float RandomWalkDistance { get; init; }
+
     public required Range<double> DimensionsX { get; init; }
     public required Range<double> DimensionsY { get; init; }
     public required Range<double> DimensionsZ { get; init; }

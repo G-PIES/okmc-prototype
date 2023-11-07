@@ -4,14 +4,16 @@ using OkmcPrototype.Model;
 using OkmcPrototype.Model.Events;
 using OkmcPrototype.Model.Objects;
 
+var size = 0.1 * Units.MilliMeters;
 var parameters = new ModelParameters
 {
     AttemptFrequency = Math.Pow(10, 13),
     MigrationEnergy = 0.34,
     Temperature = 130,
-    DimensionsX = new Range<double>(0, 36 * Constants.BohrRadius),
-    DimensionsY = new Range<double>(0, 36 * Constants.BohrRadius),
-    DimensionsZ = new Range<double>(0, 216 * Constants.BohrRadius),
+    RandomWalkDistance = (float)(5 * Units.NanoMeters),
+    DimensionsX = new Range<double>(-size / 2, size / 2),
+    DimensionsY = new Range<double>(-size / 2, size / 2),
+    DimensionsZ = new Range<double>(-size / 4, size / 4),
 };
 
 var model = new Model

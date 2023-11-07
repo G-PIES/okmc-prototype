@@ -4,7 +4,8 @@ namespace OkmcPrototype.Model.Events;
 
 public class RandomWalk : EventDescriptor
 {
-    private Random _random = new Random();
+    private const float TwoPi = (float)(2 * Math.PI);
+    private readonly Random _random = new();
     private double _rate;
     public override double Rate => _rate;
 
@@ -23,17 +24,31 @@ public class RandomWalk : EventDescriptor
 
     public override void Execute(Model model, ModelObject modelObject)
     {
-        var sia = (SelfInterstitialAtom)modelObject;
+        var sia = (Defect)modelObject;
 
-        var lambda = 0.005f;
+        if (sia.Size >= 5)
+        {
+            return;
+        }
 
-        if (_random.NextSingle() > 0.5)
-        {
-            sia.Position.Z += lambda;
-        }
-        else
-        {
-            sia.Position.Z -= lambda;
-        }
+        var lambda = model.Parameters.RandomWalkDistance;
+
+        sia.Position += GenerateRandomVector(lambda);
+    }
+
+    private Vector3 GenerateRandomVector(float length)
+    {
+        var alpha = _random.NextSingle(new Range<float>(0, TwoPi));
+        var beta = _random.NextSingle(new Range<float>(0, TwoPi));
+        var cosAlpha = (float)Math.Cos(alpha);
+        var cosBeta = (float)Math.Cos(beta);
+        var sinAlpha = (float)Math.Sin(alpha);
+        var sinBeta = (float)Math.Sin(beta);
+
+        return new Vector3(
+            length * cosAlpha * cosBeta,
+            length * sinAlpha * cosBeta,
+            length * sinBeta
+        );
     }
 }
