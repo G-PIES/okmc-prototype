@@ -1,4 +1,5 @@
 using OkmcPrototype.Model;
+using OkmcPrototype.Model.Objects;
 
 namespace OkmcPrototype;
 
@@ -24,6 +25,11 @@ public class Simulation
 
                 foreach (var modelObject in model.Objects)
                 {
+                    if (modelObject == null)
+                    {
+                        continue;
+                    }
+
                     var randomDouble = random.NextDouble();
                     var numberOfTimes = CalculateNumberOfTimes(probabilities, randomDouble);
                     for (int i = 0; i < numberOfTimes; i++)
@@ -33,7 +39,81 @@ public class Simulation
                 }
             }
 
+            ProcessOutOfBox(model);
+            ProcessInteractions(model);
+
             currentTime += timeIncrement;
+        }
+    }
+
+    private void ProcessOutOfBox(Model.Model model)
+    {
+        for (var i = 0; i < model.Objects.Length; i++)
+        {
+            var defect = model.Objects[i] as Defect;
+            if (defect == null)
+            {
+                continue;
+            }
+
+            if (!IsInModelDimensions(defect.Position))
+            {
+                model.Objects[i] = null;
+            }
+        }
+
+        bool IsInModelDimensions(Vector3 position)
+        {
+            return position.X > model.Parameters.DimensionsX.From &&
+                position.X < model.Parameters.DimensionsX.To &&
+                position.Y > model.Parameters.DimensionsY.From &&
+                position.Y < model.Parameters.DimensionsY.To &&
+                position.Z > model.Parameters.DimensionsZ.From &&
+                position.Z < model.Parameters.DimensionsZ.To;
+        }
+    }
+
+    private static void ProcessInteractions(Model.Model model)
+    {
+        for (var i = 0; i < model.Objects.Length; i++)
+        {
+            var first = model.Objects[i] as Defect;
+            if (first == null)
+            {
+                continue;
+            }
+
+            for (var j = i + 1; j < model.Objects.Length; j++)
+            {
+                var second = model.Objects[j] as Defect;
+                if (second == null)
+                {
+                    continue;
+                }
+
+                if (CloseEnough(first, second))
+                {
+                    model.Objects[j] = null;
+                    if (first.Type == second.Type)
+                    {
+                        first.Size++;
+                    }
+                    else
+                    {
+                        first.Size--;
+                        if (first.Size == 0)
+                        {
+                            model.Objects[i] = null;
+                        }
+                    }
+                }
+            }
+        }
+
+        bool CloseEnough(Defect first, Defect second)
+        {
+            var distance = Vector3.Distance(first.Position, second.Position);
+            return distance < model.Parameters.RandomWalkDistance;
         }
     }
 

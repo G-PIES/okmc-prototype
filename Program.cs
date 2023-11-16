@@ -32,24 +32,26 @@ var simulation = new Simulation
         Omega = 1
     }
 };
-simulation.Run(model, TimeSpan.FromSeconds(30));
+simulation.Run(model, TimeSpan.FromMinutes(20));
 
-PrintByBuckets(model.Objects.Cast<SelfInterstitialAtom>(), 100, sia => sia.Position.Z);
-
-ImmutableArray<ModelObject> GenerateObjects()
+ModelObject[] GenerateObjects()
 {
-    var objects = ImmutableArray.CreateBuilder<ModelObject>();
+    var count = 500;
+    var objects = ImmutableArray.CreateBuilder<ModelObject>(count);
     var random = new Random();
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < count; i++)
     {
+        var type = i > count / 2
+            ? DefectType.Interstitial
+            : DefectType.Vacancy;
         var position = new Vector3(
             (float)random.NextDouble(parameters.DimensionsX),
-            (float)random.NextDouble(parameters.DimensionsX),
-            (float)(parameters.DimensionsZ.To / 2));
-        objects.Add(new SelfInterstitialAtom(position));
+            (float)random.NextDouble(parameters.DimensionsY),
+            (float)random.NextDouble(parameters.DimensionsZ));
+        objects.Add(new Defect(type, position));
     }
 
-    return objects.ToImmutableArray();
+    return objects.ToArray();
 }
 
 void PrintByBuckets<TEntity>(
@@ -76,6 +78,7 @@ void PrintByBuckets<TEntity>(
         {
             continue;
         }
+
         var value = min + delta * i;
         Console.Write(value.ToString(CultureInfo.InvariantCulture));
         Console.Write("\t");
